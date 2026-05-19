@@ -19,6 +19,12 @@ BTF. If the kernel was not compiled with `CONFIG_DEBUG_INFO_BTF=y` this will
 fail to setup at runtime, and we will fallback to disciplining the timer
 through the vDSO against several samples.
 
+> [!WARNING]
+> The BTF parsing code is currently brittle. While it works on MY kernel, it
+> might not work on yours. The implementation quality of this library is OK,
+> definitely not terrible, but needs some polish and the interface will
+> likely break when it's time to add support for ARM64 and other OS.
+
 
 ## Usage
 ```zig
