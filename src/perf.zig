@@ -24,9 +24,9 @@ pub const L1dMissCounter = struct {
         //   bits 0-7   cache id
         //   bits 8-15  op id
         //   bits 16-23 result id
-        const cache_id: u64 = @intFromEnum(linux.PERF.COUNT.HW.CACHE.L1D);
-        const op_id: u64 = @intFromEnum(linux.PERF.COUNT.HW.CACHE.OP.READ);
-        const res_id: u64 = @intFromEnum(linux.PERF.COUNT.HW.CACHE.RESULT.MISS);
+        const cache_id: u64 = @backingInt(linux.PERF.COUNT.HW.CACHE.L1D);
+        const op_id: u64 = @backingInt(linux.PERF.COUNT.HW.CACHE.OP.READ);
+        const res_id: u64 = @backingInt(linux.PERF.COUNT.HW.CACHE.RESULT.MISS);
         const config: u64 = cache_id | (op_id << 8) | (res_id << 16);
 
         var attr: linux.perf_event_attr = .{
@@ -75,7 +75,7 @@ pub const L1dMissCounter = struct {
 
     pub inline fn read(self: *const L1dMissCounter) u64 {
         const idx = self.rdpmc_index;
-        return switch (builtin.cpu.arch) {
+        return switch (builtin.target.cpu.arch) {
             .x86_64 => blk: {
                 var lo: u32 = undefined;
                 var hi: u32 = undefined;

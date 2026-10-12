@@ -140,7 +140,7 @@ pub inline fn instant() u64 {
 }
 
 pub inline fn checkpoint() struct { ticks: u64, cpuid: u32 } {
-    return switch (builtin.cpu.arch) {
+    return switch (builtin.target.cpu.arch) {
         .x86_64 => blk: {
             var lo: u32 = undefined;
             var hi: u32 = undefined;
@@ -152,7 +152,7 @@ pub inline fn checkpoint() struct { ticks: u64, cpuid: u32 } {
             );
             break :blk .{ .ticks = (@as(u64, hi) << 32) | @as(u64, lo), .cpuid = aux };
         },
-        .aarch64 => switch (builtin.os.tag) {
+        .aarch64 => switch (builtin.target.os.tag) {
             .macos, .ios, .tvos, .watchos => blk: {
                 break :blk .{ .ticks = 0, .cpuid = 0 }; // TODO
             },
@@ -271,7 +271,7 @@ pub const Bypass = struct {
         const types = blob[ts..te];
         const strings = blob[ss..se];
 
-        var index: std.ArrayListUnmanaged(u32) = .empty;
+        var index: std.ArrayList(u32) = .empty;
         defer index.deinit(alloc);
         {
             var off: usize = 0;
@@ -324,7 +324,7 @@ pub const Bypass = struct {
     fn nameAt(strings: []const u8, off: u32) []const u8 {
         if (off >= strings.len) return "";
         const tail = strings[off..];
-        const end = std.mem.indexOfScalar(u8, tail, 0) orelse tail.len;
+        const end = std.mem.findScalar(u8, tail, 0) orelse tail.len;
         return tail[0..end];
     }
 
@@ -362,7 +362,7 @@ pub const Bypass = struct {
         @memset(found, false);
 
         const Frame = struct { type_off: usize, base_bit_offset: u32 };
-        var stack: std.ArrayListUnmanaged(Frame) = .empty;
+        var stack: std.ArrayList(Frame) = .empty;
         defer stack.deinit(allocator);
         try stack.append(allocator, .{ .type_off = struct_off, .base_bit_offset = 0 });
 

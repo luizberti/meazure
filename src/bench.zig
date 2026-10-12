@@ -14,7 +14,7 @@ const builtin = @import("builtin");
 const meazure = @import("meazure");
 
 inline fn rdtscp() u64 {
-    return switch (builtin.cpu.arch) {
+    return switch (builtin.target.cpu.arch) {
         .x86_64 => blk: {
             var lo: u32 = undefined;
             var hi: u32 = undefined;
@@ -308,7 +308,7 @@ fn reportMisses(b: Bench, scratch: []u64, out: *std.Io.Writer) !void {
 }
 
 fn reportHistogram(b: Bench, out: *std.Io.Writer) !void {
-    var counts = [_]usize{0} ** (bucket_edges.len + 1);
+    var counts: [bucket_edges.len + 1]usize = @splat(0);
     for (b.samples) |s| {
         var bucket: usize = bucket_edges.len;
         for (bucket_edges, 0..) |edge, i| {
